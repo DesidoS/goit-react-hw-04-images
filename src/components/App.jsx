@@ -1,6 +1,6 @@
 import { Container } from './App.styled';
 import { useState, useEffect } from 'react';
-import Search from './SearchBar';
+import SearchBar from './SearchBar';
 import Loader from './Loader';
 import fetchPixabay from '../api/index';
 import ImageGallery from './ImageGallery';
@@ -14,8 +14,8 @@ const App = () => {
   const [totalPages, setTotalPages] = useState(null);
 
   useEffect(() => {
-    setIsLoading(true);
     const loadingContent = async (q, page) => {
+      setIsLoading(true);
       const response = await fetchPixabay(q, page);
       const { totalHits, hits, total } = response.data;
       if (totalHits === 0) {
@@ -53,7 +53,7 @@ const App = () => {
 
   return (
     <>
-      <Search updateState={updateState} />
+      <SearchBar updateState={updateState} />
       {findImg === '' && (
         <Container>
           <h1>Insert your request.</h1>

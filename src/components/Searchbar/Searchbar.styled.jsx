@@ -3,7 +3,7 @@ import styled from 'styled-components';
 /*
  * Стили компонента Searchbar
  */
-export const SearchBar = styled.header`
+export const Search = styled.header`
   top: 0;
   left: 0;
   position: sticky;
