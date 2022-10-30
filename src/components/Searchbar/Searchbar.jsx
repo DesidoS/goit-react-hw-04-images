@@ -1,4 +1,4 @@
-import { Component } from 'react';
+import { useState } from 'react';
 import PropTypes from 'prop-types';
 
 import {
@@ -7,67 +7,63 @@ import {
   SearchFormButton,
   SearchFormButtonLabel,
   SearchFormInput,
-} from './Searchbar.styled';
+} from './SearchBar.styled';
 import { FcSearch } from 'react-icons/fc';
 
-class Searchbar extends Component {
-  static propTypes = {
-    updateState: PropTypes.func.isRequired,
+const Search = ({ updateState }) => {
+  const [find, setFind] = useState('');
+  const [prevFind, setPrevFind] = useState('');
+
+  const onInputChange = e => {
+    if (e.currentTarget.name === 'find') {
+      setFind(e.currentTarget.value);
+    }
   };
 
-  state = {
-    find: '',
-    prevFind: '',
+  const resetFieldts = () => {
+    setFind('');
   };
-  onInputChange = e => {
-    this.setState({ [e.currentTarget.name]: e.currentTarget.value });
-  };
-  onSubmit = e => {
+
+  const onSubmit = e => {
     e.preventDefault();
-
-    this.setState(() => ({
-      prevFind: this.state.find,
-    }));
-
-    if (this.state.find.trim('') === '') {
+    setPrevFind(find);
+    if (find.trim('') === '') {
       alert('Please, enter field');
       return;
     }
-    if (this.state.find.trim('') === this.state.prevFind) {
+    if (find.trim('') === prevFind) {
+      resetFieldts();
       alert('Please, new request');
       return;
     }
-    this.props.updateState(this.state.find);
-    this.resetFieldts();
+    updateState(find);
+    resetFieldts();
   };
 
-  resetFieldts = () => {
-    this.setState(() => ({
-      find: '',
-    }));
-  };
-  render() {
-    return (
-      <SearchBar>
-        <SearchForm onSubmit={this.onSubmit}>
-          <SearchFormButton type="submit">
-            <SearchFormButtonLabel>
-              <FcSearch />
-            </SearchFormButtonLabel>
-          </SearchFormButton>
-          <SearchFormInput
-            name="find"
-            type="text"
-            autoComplete="off"
-            autoFocus
-            placeholder="Search images and photos"
-            value={this.state.find}
-            onChange={this.onInputChange}
-          />
-        </SearchForm>
-      </SearchBar>
-    );
-  }
-}
+  return (
+    <SearchBar>
+      <SearchForm onSubmit={onSubmit}>
+        <SearchFormButton type="submit">
+          <SearchFormButtonLabel>
+            <FcSearch />
+          </SearchFormButtonLabel>
+        </SearchFormButton>
+        <SearchFormInput
+          name="find"
+          type="text"
+          autoComplete="off"
+          autoFocus
+          placeholder="Search images and photos"
+          value={find}
+          onChange={onInputChange}
+        />
+      </SearchForm>
+    </SearchBar>
+  );
+};
 
-export default Searchbar;
+export default Search;
+
+Search.propTypes = {
+  updateState: PropTypes.func.isRequired,
+};

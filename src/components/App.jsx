@@ -1,128 +1,80 @@
-import React, { Component } from 'react';
 import { Container } from './App.styled';
-import SearchBar from './Searchbar';
+import { useState, useEffect } from 'react';
+import Search from './SearchBar';
 import Loader from './Loader';
 import fetchPixabay from '../api/index';
 import ImageGallery from './ImageGallery';
 import Button from './Button';
-import Modal from './Modal';
 
-class App extends Component {
-  state = {
-    page: 1,
-    findImg: '',
-    content: [],
-    empty: false,
-    isLoading: false,
-    showModal: false,
-    loadedAllPages: false,
-  };
+const App = () => {
+  const [page, setPage] = useState(1);
+  const [findImg, setFindImg] = useState('');
+  const [content, setContent] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [totalPages, setTotalPages] = useState(null);
 
-  componentDidMount() {
-    document.addEventListener('click', e => {
-      if (!e.target.srcset) {
+  useEffect(() => {
+    setIsLoading(true);
+    const loadingContent = async (q, page) => {
+      const response = await fetchPixabay(q, page);
+      const { totalHits, hits, total } = response.data;
+      if (totalHits === 0) {
+        setContent([]);
+        setIsLoading(false);
+        setTotalPages(1);
         return;
       }
-      if (e.target.nodeName === 'IMG') {
-        this.setState({
-          showModal: true,
-          bigPic: e.target.srcset,
-          tags: e.target.tags,
-        });
+      if (totalHits <= 12) {
+        setTotalPages(total);
+        setIsLoading(false);
+        setContent(prevContent => [...prevContent, ...hits]);
         return;
       }
-    });
-  }
-
-  componentDidUpdate(prevProps, prevState) {
-    if (prevState.findImg !== this.state.findImg) {
-      this.loadingContent(this.state.findImg, this.state.page);
+      setTotalPages(null);
+      setIsLoading(false);
+      setContent(prevContent => [...prevContent, ...hits]);
+      setTotalPages(total);
+    };
+    if (findImg !== '') {
+      loadingContent(findImg, page);
     }
-  }
+  }, [findImg, page]);
 
-  updateState = findImg => {
-    this.setState({ findImg, page: 1, content: [], empty: false });
+  const updateState = findImg => {
+    setFindImg(findImg);
+    setTotalPages(null);
+    setPage(1);
+    setContent([]);
   };
 
-  loadingContent = async (q, page) => {
-    this.setState({ isLoading: true });
-    const response = await fetchPixabay(q, page);
-    const { totalHits, hits } = response.data;
-    const { content } = this.state;
-
-    if (totalHits === 0) {
-      this.setState({
-        empty: true,
-        isLoading: false,
-      });
-      return;
-    }
-    if (totalHits <= 12) {
-      this.setState({
-        loadedAllPages: true,
-        isLoading: false,
-        content: [...content, ...hits],
-      });
-      return;
-    }
-    this.setState({
-      isLoading: false,
-      content: [...content, ...hits],
-      loadedAllPages: false,
-      page: page + 1,
-    });
-    if (totalHits < content.length + 12) {
-      this.setState({
-        loadedAllPages: true,
-      });
-      return;
-    }
+  const onLoadMore = () => {
+    setPage(prevPage => prevPage + 1);
   };
 
-  onLoadMore = () => {
-    this.loadingContent(this.state.findImg, this.state.page);
-  };
-
-  toggleModal = e => {
-    this.setState({
-      showModal: !this.state.showModal,
-    });
-  };
-
-  render() {
-    const { content, showModal, bigPic, tags } = this.state;
-
-    return (
-      <>
-        <SearchBar updateState={this.updateState} />
-        {this.state.findImg === '' && (
-          <Container>
-            <h1>Insert your request.</h1>
-          </Container>
-        )}
-        {this.state.empty && (
-          <Container>
-            <h1>No images for this request.</h1>
-          </Container>
-        )}
-
-        <ImageGallery content={content} />
-        {this.state.content.length > 0 &&
-          !this.state.loadedAllPages &&
-          !this.state.isLoading && <Button onLoadMore={this.onLoadMore} />}
-        {this.state.isLoading && (
-          <Container>
-            <Loader />
-          </Container>
-        )}
-        {showModal && (
-          <Modal toggleModal={this.toggleModal}>
-            {<img src={bigPic} alt={tags}></img>}
-          </Modal>
-        )}
-      </>
-    );
-  }
-}
+  return (
+    <>
+      <Search updateState={updateState} />
+      {findImg === '' && (
+        <Container>
+          <h1>Insert your request.</h1>
+        </Container>
+      )}
+      {totalPages && content.length === 0 && (
+        <Container>
+          <h1>No images for this request.</h1>
+        </Container>
+      )}
+      <ImageGallery content={content} />
+      {content.length > 0 && totalPages > content.length && !isLoading && (
+        <Button onLoadMore={onLoadMore} />
+      )}
+      {isLoading && (
+        <Container>
+          <Loader />
+        </Container>
+      )}
+    </>
+  );
+};
 
 export default App;
