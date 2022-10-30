@@ -41,12 +41,6 @@ const App = () => {
   }, [findImg, page]);
 
   const updateState = findImg => {
-    // if (!findImg) {
-    //   setTotalPages(null);
-    //   setContent([]);
-    //   setPage(1);
-    //   return;
-    // }
     setFindImg(findImg);
     setTotalPages(null);
     setPage(1);
