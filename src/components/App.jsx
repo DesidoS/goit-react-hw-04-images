@@ -1,6 +1,6 @@
 import { Container } from './App.styled';
 import { useState, useEffect } from 'react';
-import SearchBar from './SearchBar';
+import Searchbar from './Searchbar';
 import Loader from './Loader';
 import fetchPixabay from '../api/index';
 import ImageGallery from './ImageGallery';
@@ -41,6 +41,12 @@ const App = () => {
   }, [findImg, page]);
 
   const updateState = findImg => {
+    // if (!findImg) {
+    //   setTotalPages(null);
+    //   setContent([]);
+    //   setPage(1);
+    //   return;
+    // }
     setFindImg(findImg);
     setTotalPages(null);
     setPage(1);
@@ -53,7 +59,7 @@ const App = () => {
 
   return (
     <>
-      <SearchBar updateState={updateState} />
+      <Searchbar updateState={updateState} />
       {findImg === '' && (
         <Container>
           <h1>Insert your request.</h1>

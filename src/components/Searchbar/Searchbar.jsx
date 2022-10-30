@@ -2,15 +2,15 @@ import { useState } from 'react';
 import PropTypes from 'prop-types';
 
 import {
-  Search,
+  Bar,
   SearchForm,
   SearchFormButton,
   SearchFormButtonLabel,
   SearchFormInput,
-} from './SearchBar.styled';
+} from './Searchbar.styled';
 import { FcSearch } from 'react-icons/fc';
 
-const SearchBar = ({ updateState }) => {
+const Searchbar = ({ updateState }) => {
   const [find, setFind] = useState('');
   const [prevFind, setPrevFind] = useState('');
 
@@ -41,7 +41,7 @@ const SearchBar = ({ updateState }) => {
   };
 
   return (
-    <Search>
+    <Bar>
       <SearchForm onSubmit={onSubmit}>
         <SearchFormButton type="submit">
           <SearchFormButtonLabel>
@@ -58,12 +58,12 @@ const SearchBar = ({ updateState }) => {
           onChange={onInputChange}
         />
       </SearchForm>
-    </Search>
+    </Bar>
   );
 };
 
-export default SearchBar;
+export default Searchbar;
 
-Search.propTypes = {
+Searchbar.propTypes = {
   updateState: PropTypes.func.isRequired,
 };
